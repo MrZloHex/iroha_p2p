@@ -14,9 +14,9 @@ fn main() {
     let port = if let Some(port) = matches.value_of("port") {
         port
     } else {"8080"};
+    let connect: Option<&str> = matches.value_of("connect");
 
-
-    let mut peer = Peer::new(period, port);
+    let mut peer = Peer::new(period, port, connect);
     peer.start_communication();
 }
 
