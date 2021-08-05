@@ -3,22 +3,21 @@ version: "0.1.0"
 author: MrZloHex <zlo.alex.it@gmail.com>
 about: p2p communication
 args:
-  - period:
-    short: p
-    long: period
-    value_name: PER
-    takes_value: true
-    help: Sets period in seconds of submitting message
-  - port:
-    short: P
-    long: port
-    value_name: PORT
-    takes_value: true
-    help: Sets port on which Peer is hosting
-  - connect:
-    short: c
-    long: connect
-    takes_value: CON
-    takes_value: true
-    help: Sets base peer
-
+    - period:
+        short: p
+        long: period
+        value_name: PER
+        takes_value: true
+        help: Sets period in seconds of submitting message
+    - port:
+        short: P
+        long: port
+        value_name: PORT
+        takes_value: true
+        help: Sets port on which Peer is hosting
+    - connect:
+        short: c
+        long: connect
+        value_name: CON
+        takes_value: true
+        help: Sets base peer
