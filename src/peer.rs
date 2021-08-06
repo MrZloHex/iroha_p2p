@@ -1,8 +1,8 @@
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 use std::time::Duration;
-use std::io::Write;
-use super::fw::{get_peers, is_peers, create_list_of_peers};
+use std::io::{Read, Write};
+use super::fw::{add_peer, get_peers, is_peers, create_list_of_peers};
 
 
 #[derive(Clone)]
@@ -29,6 +29,7 @@ impl Peer{
     pub fn start(per: &str, port: &str, connect: Option<&str>) {
         let peer = Peer::new(per, port, connect);
         let listen = TcpListener::bind(peer.address.clone()).unwrap();
+        let filename = peer.my_peers.clone();
         thread::spawn(move|| {
             loop {
                 peer.speak();
@@ -39,13 +40,14 @@ impl Peer{
         // Listen part
         //loop {
         for stream in listen.incoming() {
+            let fna = filename.clone();
             match stream {
                 Ok(stream) => {
                     println!("New connection: {}", stream.peer_addr().unwrap());
-                    //thread::spawn(move|| {
-                    //    // connection succeeded
-                    //    handle_client(stream)
-                    //});
+                    thread::spawn(move|| {
+                        // connection succeeded
+                        add_peer(fna, handle_income(stream));
+                    });
                 }
                 Err(e) => {
                     println!("Error: {}", e);
@@ -61,10 +63,11 @@ impl Peer{
     fn speak(&self) {
         if is_peers(self.my_peers.clone()) {
             for peer in get_peers(self.my_peers.clone()) {
+                println!("{}", peer);
                 match TcpStream::connect(peer) {
                     Ok(mut stream) => {
-                        let msg = b"Hello!";
-                        stream.write(msg).unwrap();
+                        //let msg = ;
+                        stream.write(self.address.clone().as_bytes()).unwrap();
                     },
                     Err(e) => {
                         panic!("{}", e);
@@ -73,4 +76,12 @@ impl Peer{
             }
         }
     }
+}
+
+
+fn handle_income(mut stream: TcpStream) -> String {
+    let mut buffer = [0_u8; 1024];
+    stream.read(&mut buffer).unwrap();
+    let address = format!("{}", String::from_utf8_lossy(&buffer[..]));
+    address
 }

@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::fs::{OpenOptions, File};
 use std::io::{
     prelude::*,
     BufReader,
@@ -53,4 +53,11 @@ pub fn get_peers(filename: String) -> Vec<String> {
         lines.push(line);
     }
     lines
+}
+
+
+pub fn add_peer(filename: String, peer: String) {
+    let path = Path::new(&filename);
+    let mut file = OpenOptions::new().write(true).append(true).open(&path).unwrap();
+    file.write_all(peer.as_bytes());
 }
