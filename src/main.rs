@@ -1,6 +1,7 @@
 extern crate clap;
 use clap::{App, load_yaml};
 
+mod fw;
 mod peer;
 use peer::Peer; 
 
@@ -16,7 +17,7 @@ fn main() {
     } else {"8080"};
     let connect: Option<&str> = matches.value_of("connect");
 
-    let mut peer = Peer::new(period, port, connect);
-    peer.start_communication();
+    let peer = Peer::new(period, port, connect);
+    //peer.start_communication();
 }
 
