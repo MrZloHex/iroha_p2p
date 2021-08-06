@@ -42,7 +42,19 @@ If output isn't the same, try add issue on GitHub
 
 #### Flags
 
+ - **-h**, **--help**:</br>
+	Help inforamation
+ - **-V**, **--version**:</br>
+	Version of this crate
 
+#### Options
+
+ - **-l**, **--list**:</br>
+	Set path and name to file with peers of one group
+ - **-p**, **--period**:</br>
+	Set frequency of speaking in seconds
+ - **-P**, **--port**:</br>
+	Set port of Peer
 
 
 ## Help
