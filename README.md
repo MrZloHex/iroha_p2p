@@ -1,3 +1,3 @@
 # Iroha p2p
 
-_It's a test task_
+*It's a test task*
