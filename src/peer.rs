@@ -1,16 +1,14 @@
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 use std::time::Duration;
-use std::io::{Read, Write};
-use std::str::from_utf8;
-use std::fs::OpenOptions;
-
+use std::io::Write;
 use super::fw::{get_peers, is_peers, create_list_of_peers};
 
 
+#[derive(Clone)]
 pub struct Peer {
     period: u64,
-    me: TcpListener,
+    address: String,
     my_peers: String
 }
 
@@ -22,44 +20,56 @@ impl Peer{
         create_list_of_peers(my_f.clone(), connect);
         Peer {
             period: per.parse::<u64>().unwrap(),
-            me: TcpListener::bind(address).unwrap(),
+            address: address,
             my_peers: my_f
         }
 
     }
 
-    pub fn start_communication(&self) {
-        self.speak();
-        //thread::spawn(move|| {
-        //    loop {
-        //        self.speak();
-        //        thread::sleep(Duration::from_secs(self.period));
-        //   };
-        //});
+    pub fn start(per: &str, port: &str, connect: Option<&str>) {
+        let peer = Peer::new(per, port, connect);
+        let listen = TcpListener::bind(peer.address.clone()).unwrap();
+        thread::spawn(move|| {
+            loop {
+                peer.speak();
+                thread::sleep(Duration::from_secs(peer.period));
+           };
+        });
 
         // Listen part
-        // for stream in self.me.incoming() {
-        //     match stream {
-        //         Ok(stream) => {
-        //             println!("New connection: {}", stream.peer_addr().unwrap());
-        //             thread::spawn(move|| {
-        //                 // connection succeeded
-        //                 // handle_client(stream)
-        //             });
-        //         }
-        //         Err(e) => {
-        //             println!("Error: {}", e);
-        //             /* connection failed */
-        //         }
-        //     }
-        // }
+        //loop {
+        for stream in listen.incoming() {
+            match stream {
+                Ok(stream) => {
+                    println!("New connection: {}", stream.peer_addr().unwrap());
+                    //thread::spawn(move|| {
+                    //    // connection succeeded
+                    //    handle_client(stream)
+                    //});
+                }
+                Err(e) => {
+                    println!("Error: {}", e);
+                    /* connection failed */
+                }
+            }
+        }
+        //}
+        // close the socket server
     }
 
 
     fn speak(&self) {
         if is_peers(self.my_peers.clone()) {
             for peer in get_peers(self.my_peers.clone()) {
-                println!("{}", peer);
+                match TcpStream::connect(peer) {
+                    Ok(mut stream) => {
+                        let msg = b"Hello!";
+                        stream.write(msg).unwrap();
+                    },
+                    Err(e) => {
+                        panic!("{}", e);
+                    }
+                }
             }
         }
     }
