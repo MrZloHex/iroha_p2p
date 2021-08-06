@@ -4,6 +4,9 @@
 
 ## Description
 
+It is semi-centralized p2p crate. Base protocol is TCP, and uses its implementation from Standard Linrary of Rust Language. Also it uses extern crate CLAP for CLI options and flags.
+
+
 ## Usage
 
 ### Downloading
