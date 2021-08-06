@@ -18,6 +18,6 @@ fn main() {
     let connect: Option<&str> = matches.value_of("connect");
 
     let peer = Peer::new(period, port, connect);
-    //peer.start_communication();
+    peer.start_communication();
 }
 

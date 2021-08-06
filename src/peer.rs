@@ -5,7 +5,7 @@ use std::io::{Read, Write};
 use std::str::from_utf8;
 use std::fs::OpenOptions;
 
-use super::fw::create_list_of_peers;
+use super::fw::{get_peers, is_peers, create_list_of_peers};
 
 
 pub struct Peer {
@@ -28,11 +28,14 @@ impl Peer{
 
     }
 
-    pub fn start_communication(&'static self) {
-        thread::spawn(move|| {
-            self.speak();
-            thread::sleep(Duration::from_secs(self.period));
-        });
+    pub fn start_communication(&self) {
+        self.speak();
+        //thread::spawn(move|| {
+        //    loop {
+        //        self.speak();
+        //        thread::sleep(Duration::from_secs(self.period));
+        //   };
+        //});
 
         // Listen part
         // for stream in self.me.incoming() {
@@ -54,5 +57,10 @@ impl Peer{
 
 
     fn speak(&self) {
+        if is_peers(self.my_peers.clone()) {
+            for peer in get_peers(self.my_peers.clone()) {
+                println!("{}", peer);
+            }
+        }
     }
 }
