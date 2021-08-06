@@ -1,11 +1,6 @@
-use std::fs::{OpenOptions, File};
-use std::io::{
-    prelude::*,
-    BufReader,
-    BufRead
-};
+use std::fs::{File, OpenOptions};
+use std::io::{prelude::*, BufRead, BufReader};
 use std::path::Path;
-
 
 pub fn connect_to_list_of_peers(filename: String, address: String) {
     if is_file(&filename) {
@@ -25,21 +20,20 @@ fn create_list_of_peers(filename: &String) {
     let path = Path::new(filename);
     let _file = match File::create(&path) {
         Err(e) => panic!("{}", e),
-        Ok(f) => f
+        Ok(f) => f,
     };
 }
-
 
 pub fn is_peers(filename: &String) -> bool {
     let path = Path::new(filename);
     let mut file = match File::open(&path) {
         Err(e) => panic!("{}", e),
-        Ok(f) => f
+        Ok(f) => f,
     };
     let mut content = String::new();
     match file.read_to_string(&mut content) {
         Err(e) => panic!("{}", e),
-        _ => ()
+        _ => (),
     };
     if content.is_empty() {
         false
@@ -48,12 +42,11 @@ pub fn is_peers(filename: &String) -> bool {
     }
 }
 
-
 pub fn get_peers(filename: &String) -> Vec<String> {
     let path = Path::new(filename);
     let file = match File::open(&path) {
         Err(e) => panic!("{}", e),
-        Ok(f) => f
+        Ok(f) => f,
     };
 
     let reader = BufReader::new(file);
@@ -65,15 +58,17 @@ pub fn get_peers(filename: &String) -> Vec<String> {
     lines
 }
 
-
 fn add_peer(filename: &String, peer: &String) {
     if !is_peer(filename, peer) {
         let path = Path::new(filename);
-        let mut file = OpenOptions::new().write(true).append(true).open(&path).unwrap();
+        let mut file = OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open(&path)
+            .unwrap();
         file.write_all(format!("{}\n", peer).as_bytes()).unwrap();
     }
 }
-
 
 fn is_peer(filename: &String, fpeer: &String) -> bool {
     let peers = get_peers(filename);
