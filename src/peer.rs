@@ -2,50 +2,65 @@ use std::net::{TcpListener, TcpStream};
 use std::thread;
 use std::time::Duration;
 use std::io::{Read, Write};
-use super::fw::{add_peer, get_peers, is_peers, create_list_of_peers};
+use super::fw::{get_peers, is_peers, connect_to_list_of_peers};
 
 
 #[derive(Clone)]
 pub struct Peer {
+    // Frequency of speaking
     period: u64,
+    // IP address of Peer
     address: String,
-    my_peers: String
+    // Filename with Peers
+    filename: String
 }
 
 impl Peer{
-    pub fn new(per: &str, port: &str, connect: Option<&str>) -> Peer {
+    fn new(per: &str, port: &str, filename: String) -> Peer {
+        // IP address of Peer
         let address = format!("127.0.0.1:{}", port);
-        let my_f = format!("/home/zs/Projects/iroha_p2p/tmp/{}.txt", port);
-        println!("{}", address);
-        create_list_of_peers(my_f.clone(), connect);
+        println!("My address is '{}'", address);
+
+        // Connecting to file with Peers
+        connect_to_list_of_peers(filename.clone(), address.clone());
         Peer {
             period: per.parse::<u64>().unwrap(),
-            address: address,
-            my_peers: my_f
+            address,
+            filename 
         }
 
     }
 
-    pub fn start(per: &str, port: &str, connect: Option<&str>) {
-        let peer = Peer::new(per, port, connect);
+    pub fn start(per: &str, port: &str, filename: Option<&str>) {
+        // Connecting to files with all peers
+        let filename = if let Some(fname) = filename {
+            fname
+        } else {
+            "Peer.txt"
+        };
+        // Creating instance of Peer
+        let peer = Peer::new(per, port, filename.to_string());
+        // Creating TcpListener
         let listen = TcpListener::bind(peer.address.clone()).unwrap();
-        let filename = peer.my_peers.clone();
+
+
+
+        // Making new thread for parallel Speaking and Listening
         thread::spawn(move|| {
             loop {
+                // Speak and wait
                 peer.speak();
                 thread::sleep(Duration::from_secs(peer.period));
            };
         });
 
-        // Listen part
-        //loop {
+        // Listen for income messages
         for stream in listen.incoming() {
-            let fna = filename.clone();
             match stream {
                 Ok(stream) => {
                     thread::spawn(move|| {
                         // connection succeeded
-                        add_peer(fna, handle_income(stream));
+                        handle_income(stream);
                     });
                 }
                 Err(e) => {
@@ -54,22 +69,25 @@ impl Peer{
                 }
             }
         }
-        //}
-        // close the socket server
     }
 
 
     fn speak(&self) {
-        if is_peers(self.my_peers.clone()) {
-            for peer in get_peers(self.my_peers.clone()) {
-                println!("SPEAK TO {}", peer);
-                match TcpStream::connect(peer) {
-                    Ok(mut stream) => {
-                        let msg = format!("{}{}", self.address.chars().count(), self.address); 
-                        stream.write(msg.as_bytes()).unwrap();
-                    },
-                    Err(e) => {
-                        println!("ERORR TO SPEAK {}", e);
+        if is_peers(&self.filename) {
+            for peer in get_peers(&self.filename) {
+                // Speaking for each peer except myself
+                if !peer.eq(&self.address) {
+                    // Connecting to Peer
+                    match TcpStream::connect(peer.clone()) {
+                        Ok(mut stream) => {
+                            let msg = format!("{}{}", self.address.chars().count(), self.address); 
+                            // Send IP address of sender and length of its IP
+                            stream.write(msg.as_bytes()).unwrap();
+                            println!("SPEAK TO {}", peer);
+                        },
+                        Err(e) => {
+                            println!("ERORR TO SPEAK {}", e);
+                        }
                     }
                 }
             }
@@ -78,11 +96,11 @@ impl Peer{
 }
 
 
-fn handle_income(mut stream: TcpStream) -> String {
-    let mut buffer = [0_u8; 1024];
+fn handle_income(mut stream: TcpStream) {
+    let mut buffer = [0_u8; 25];
+    // Reading income message
     stream.read(&mut buffer).unwrap();
     let size = format!("{}", String::from_utf8_lossy(&buffer[0..2])).parse::<usize>().unwrap();
     let address = format!("{}", String::from_utf8_lossy(&buffer[2..size+2]));
-    // println!("{}", address);
-    address
+    println!("LISTEN FROM {}", address);
 }
