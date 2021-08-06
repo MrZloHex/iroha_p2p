@@ -43,7 +43,6 @@ impl Peer{
             let fna = filename.clone();
             match stream {
                 Ok(stream) => {
-                    println!("New connection: {}", stream.peer_addr().unwrap());
                     thread::spawn(move|| {
                         // connection succeeded
                         add_peer(fna, handle_income(stream));
@@ -63,14 +62,14 @@ impl Peer{
     fn speak(&self) {
         if is_peers(self.my_peers.clone()) {
             for peer in get_peers(self.my_peers.clone()) {
-                println!("{}", peer);
+                println!("SPEAK TO {}", peer);
                 match TcpStream::connect(peer) {
                     Ok(mut stream) => {
-                        //let msg = ;
-                        stream.write(self.address.clone().as_bytes()).unwrap();
+                        let msg = format!("{}{}", self.address.chars().count(), self.address); 
+                        stream.write(msg.as_bytes()).unwrap();
                     },
                     Err(e) => {
-                        panic!("{}", e);
+                        println!("ERORR TO SPEAK {}", e);
                     }
                 }
             }
@@ -82,6 +81,8 @@ impl Peer{
 fn handle_income(mut stream: TcpStream) -> String {
     let mut buffer = [0_u8; 1024];
     stream.read(&mut buffer).unwrap();
-    let address = format!("{}", String::from_utf8_lossy(&buffer[..]));
+    let size = format!("{}", String::from_utf8_lossy(&buffer[0..2])).parse::<usize>().unwrap();
+    let address = format!("{}", String::from_utf8_lossy(&buffer[2..size+2]));
+    // println!("{}", address);
     address
 }

@@ -15,7 +15,7 @@ pub fn create_list_of_peers(filename: String, connect: Option<&str>) {
     };
     
     if let Some(peer) = connect {
-        file.write_all(peer.as_bytes()).unwrap();
+        file.write_all(format!("{}\n", peer).as_bytes()).unwrap();
     }
 }
 
@@ -57,7 +57,22 @@ pub fn get_peers(filename: String) -> Vec<String> {
 
 
 pub fn add_peer(filename: String, peer: String) {
-    let path = Path::new(&filename);
-    let mut file = OpenOptions::new().write(true).append(true).open(&path).unwrap();
-    file.write_all(peer.as_bytes());
+    if !is_peer(filename.clone(), peer.clone()) {
+        let path = Path::new(&filename);
+        let mut file = OpenOptions::new().write(true).append(true).open(&path).unwrap();
+        file.write_all(format!("{}\n", peer).as_bytes()).unwrap();
+    }
+}
+
+
+pub fn is_peer(filename: String, fpeer: String) -> bool {
+    let peers = get_peers(filename);
+    let mut output: bool = false;
+    for peer in peers {
+        if peer.eq(&fpeer) {
+            output = true;
+            break;
+        }
+    }
+    output
 }
