@@ -59,14 +59,11 @@ impl Peer{
             match stream {
                 Ok(stream) => {
                     thread::spawn(move|| {
-                        // connection succeeded
+                        // Hadling incoming message
                         handle_income(stream);
                     });
-                }
-                Err(e) => {
-                    println!("Error: {}", e);
-                    /* connection failed */
-                }
+                },
+                Err(e) => println!("ERORR TO LISTEN {}", e)
             }
         }
     }
