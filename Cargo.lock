@@ -58,6 +58,7 @@ name = "iroha_p2p"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "p2p_from_std_net",
 ]
 
 [[package]]
@@ -65,6 +66,11 @@ name = "libc"
 version = "0.2.98"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "320cfe77175da3a483efed4bc0adc1968ca050b098ce4f2f1c13a56626128790"
+
+[[package]]
+name = "p2p_from_std_net"
+version = "0.1.0"
+source = "git+https://github.com/MrZloHex/p2p_from_std_net?rev=4a145e1#4a145e1fde32c4e72440023886d56d597178be78"
 
 [[package]]
 name = "strsim"

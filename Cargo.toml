@@ -11,3 +11,8 @@ edition = "2018"
 [dependencies.clap]
 version = "2.33.2"
 features = ["yaml"]
+
+
+[dependencies.p2p_from_std_net]
+git = "https://github.com/MrZloHex/p2p_from_std_net"
+rev = "4a145e1"
