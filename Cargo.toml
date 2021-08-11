@@ -15,4 +15,4 @@ features = ["yaml"]
 
 [dependencies.p2p_from_std_net]
 git = "https://github.com/MrZloHex/p2p_from_std_net"
-rev = "4a145e1"
+rev = "5300364"

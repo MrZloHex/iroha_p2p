@@ -5,8 +5,11 @@
 //mod peer;
 //use peer::Peer;
 
-extern crate p2p_from_std_net;
-use p2p_from_std_net::Peer;
+use p2p_from_std_net::{
+    Peer,
+    events::Event,
+    behaviour::BehaviourEventProcess
+};
 
 
 fn main() {
@@ -30,6 +33,25 @@ fn main() {
 
     //// Starting Peer
     //Peer::start(period, port, filename);
+
+    let ip = String::from("127.0.0.1");
+    let port = String::from("8080");
+
+
+
+    struct Behaviour {
+        peer: Peer
+    }
+
+    impl BehaviourEventProcess for Behaviour {
+        fn income_event(&mut self, event: Event) {
+            match event {
+                Event::DiscoverPeers => {},
+                Event::Message(message) => {}
+            }
+        }
+    }
+
 
 
 }
